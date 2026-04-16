@@ -3,24 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "description": "One-click from Figma design to production-ready Storybook components",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm -r build",
-    "test": "vitest",
-    "test:e2e": "playwright test",
-    "lint": "eslint .",
+    "build:core": "pnpm --filter @design-to-storybook/core build",
+    "build:react": "pnpm --filter @design-to-storybook/react build",
+    "build:cli": "pnpm --filter @design-to-storybook/cli build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "typecheck": "tsc --noEmit",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "prepare": "husky install"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.5.0",
-    "vitest": "^2.0.0",
+    "@types/node": "^22.19.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
-    "prettier": "^3.0.0"
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -39,5 +47,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/h1s97x/design-to-storybook.git"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

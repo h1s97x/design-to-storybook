@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design-to-Storybook</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .selection-info {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .selection-info h2 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .selection-count {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .selection-count span {
+      font-size: 14px;
+      font-weight: 400;
+      color: #666;
+    }
+
+    .selection-list {
+      margin-top: 12px;
+    }
+
+    .selection-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: #fff;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .selection-type {
+      background: #e5e5e5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #6366f1;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #4f46e5;
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e5e5;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .message-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .message-error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .message-info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e5e5;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #6366f1;
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Design-to-Storybook</h1>
+    <p>Export your Figma designs to Storybook components</p>
+  </div>
+
+  <div id="app">
+    <div class="empty-state" id="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+      </svg>
+      <p>Select a component in Figma<br>to get started</p>
+    </div>
+
+    <div id="content" style="display: none;">
+      <div class="selection-info">
+        <h2>Selected Components</h2>
+        <div class="selection-count">
+          <span id="selection-count">0</span>
+          <span> selected</span>
+        </div>
+        <div class="selection-list" id="selection-list"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="export-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3"/>
+          </svg>
+          Export to JSON
+        </button>
+        <button class="btn btn-secondary" id="copy-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Copy JSON to Clipboard
+        </button>
+      </div>
+
+      <div id="message"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://github.com/h1s97x/design-to-storybook" target="_blank">
+      View on GitHub
+    </a>
+  </div>
+
+  <script>
+    const selectionCount = document.getElementById('selection-count');
+    const selectionList = document.getElementById('selection-list');
+    const emptyState = document.getElementById('empty-state');
+    const content = document.getElementById('content');
+    const exportBtn = document.getElementById('export-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const messageEl = document.getElementById('message');
+
+    // Request initial selection
+    parent.postMessage({ type: 'select' }, '*');
+
+    // Handle messages from main thread
+    window.onmessage = (event) => {
+      const { type, data, message } = event.data;
+
+      switch (type) {
+        case 'selection-update':
+          updateSelection(data);
+          break;
+        case 'export-complete':
+          handleExportComplete(data);
+          break;
+        case 'copy-complete':
+          showMessage('JSON copied to clipboard!', 'success');
+          break;
+        case 'error':
+          showMessage(message, 'error');
+          break;
+      }
+    };
+
+    // Export button
+    exportBtn.addEventListener('click', () => {
+      parent.postMessage({ type: 'export' }, '*');
+      exportBtn.disabled = true;
+      exportBtn.innerHTML = '<div class="loading"><div class="spinner"></div>Exporting...</div>';
+    });
+
+    // Copy button
+    copyBtn.addEventListener('click', () => {
+      parent.postMessage({ type: 'copy-json' }, '*');
+      copyBtn.disabled = true;
+      copyBtn.innerHTML = '<div class="loading"><div class="spinner"></div>Copying...</div>';
+    });
+
+    function updateSelection(data) {
+      if (data.count === 0) {
+        emptyState.style.display = 'block';
+        content.style.display = 'none';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      content.style.display = 'block';
+
+      selectionCount.textContent = data.count;
+      selectionList.innerHTML = '';
+
+      data.names.forEach((name, i) => {
+        const item = document.createElement('div');
+        item.className = 'selection-item';
+        item.innerHTML = `
+          <span class="selection-type">${data.types[i]}</span>
+          <span>${name}</span>
+        `;
+        selectionList.appendChild(item);
+      });
+
+      exportBtn.disabled = false;
+      copyBtn.disabled = false;
+      exportBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3"/>
+        </svg>
+        Export to JSON
+      `;
+      copyBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        Copy JSON to Clipboard
+      `;
+    }
+
+    function handleExportComplete(data) {
+      showMessage(`Exported ${data.nodes.length} components!`, 'success');
+      
+      // You can handle the export data here
+      console.log('Export data:', data);
+      
+      // Reset buttons
+      exportBtn.disabled = false;
+      copyBtn.disabled = false;
+      exportBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3"/>
+        </svg>
+        Export to JSON
+      `;
+    }
+
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = `message message-${type}`;
+      messageEl.style.display = 'block';
+
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "@design-to-storybook/cli",
+  "version": "0.1.0",
+  "description": "CLI tool for Design-to-Storybook",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "design-to-storybook": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@design-to-storybook/core": "workspace:*",
+    "@design-to-storybook/react": "workspace:*",
+    "commander": "^12.0.0",
+    "fs-extra": "^11.2.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+
+    "@types/fs-extra": "^11.0.0",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0"
+  }
+}

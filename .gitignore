@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+build
+.out
+*.tsbuildinfo
+
+# Generated files
+*.gen.ts
+*.generated.ts
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test
+coverage
+.nyc_output
+
+# Figma Plugin specific
+.figma
+plugin/.last-compiled
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Misc
+*.tgz
+*.tar.gz

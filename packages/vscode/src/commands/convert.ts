@@ -47,9 +47,9 @@ export async function convertCommand(uri?: vscode.Uri) {
 
       if (framework === 'react') {
         const { generateReactComponent, generateStoryFile } = await import('@design-to-storybook/react');
-        const { component } = generateReactComponent(designData, {});
+        const componentResult = generateReactComponent(designData, []);
         const { storyFile } = generateStoryFile('Button', 'Button.tsx', []);
-        componentCode = component;
+        componentCode = componentResult.code;
         storyCode = storyFile;
       } else if (framework === 'vue') {
         const { VueComponentGenerator, VueStoryGenerator } = await import('@design-to-storybook/vue');

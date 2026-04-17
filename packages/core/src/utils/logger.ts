@@ -82,6 +82,13 @@ export class Logger {
   }
 
   /**
+   * Success log (info level with success prefix)
+   */
+  success(message: string, context?: Record<string, unknown>): void {
+    this.log(LogLevel.INFO, `✓ ${message}`, context);
+  }
+
+  /**
    * Get all log entries
    */
   getEntries(): LogEntry[] {

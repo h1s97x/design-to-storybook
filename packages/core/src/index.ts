@@ -18,7 +18,6 @@ export {
   extractVariants, 
   analyzeVariantCombinations, 
   inferSharedProps,
-  type VariantDefinition 
 } from './inference/variantInferrer.js';
 export {
   createPropertyMappings,
@@ -46,6 +45,33 @@ export {
   generateTailwindConfig,
   type TailwindPreset 
 } from './converters/tailwindConverter.js';
+
+// Token Extractor
+export { TokenExtractor } from './extractors/tokenExtractor.js';
+
+// Interaction State Exporter
+export { InteractionStateExporter } from './extractors/interactionStateExporter.js';
+
+// Generators
+export { MDXGenerator, type MDXGeneratorOptions } from './generators/mdxGenerator.js';
+
+// Error Handling
+export { 
+  DesignToStorybookError, 
+  Errors, 
+  ErrorCode,
+  type ConversionError 
+} from './utils/errors.js';
+export { 
+  Logger, 
+  createLogger, 
+  defaultLogger, 
+  silentLogger, 
+  verboseLogger,
+  LogLevel,
+  type LogEntry,
+  type LogHandler
+} from './utils/logger.js';
 
 /**
  * Main conversion function

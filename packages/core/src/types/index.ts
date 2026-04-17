@@ -314,6 +314,15 @@ export interface InstanceNode extends SceneNode {
 
 export type DesignNode = FrameNode | TextNode | VectorNode | RectangleNode | ComponentNode | ComponentSetNode | InstanceNode;
 
+// Variant Definition
+export interface VariantDefinition {
+  name: string;
+  node: DesignNode;
+  variantMapping: Record<string, string>;
+  properties: Record<string, string>;
+  styles: StyleDefinition;
+}
+
 // ============================================
 // Extracted Data
 // ============================================
@@ -444,25 +453,46 @@ export interface StoryFile {
 // Design Token Types
 // ============================================
 
+export type DesignToken = ColorToken | TypographyToken | SpacingToken | ShadowToken | BorderToken;
+
 export interface ColorToken {
   name: string;
+  type: 'color';
   value: string;
-  description?: string;
-}
-
-export interface SpacingToken {
-  name: string;
-  value: number;
   description?: string;
 }
 
 export interface TypographyToken {
   name: string;
-  fontFamily: string;
-  fontSize: number;
-  fontWeight: number;
-  lineHeight: number;
-  letterSpacing: number;
+  type: 'typography';
+  value: {
+    fontFamily: string;
+    fontSize: number;
+    fontWeight: number;
+    lineHeight: number;
+    letterSpacing: number;
+  };
+  description?: string;
+}
+
+export interface SpacingToken {
+  name: string;
+  type: 'spacing';
+  value: number;
+  description?: string;
+}
+
+export interface ShadowToken {
+  name: string;
+  type: 'shadow';
+  value: string;
+  description?: string;
+}
+
+export interface BorderToken {
+  name: string;
+  type: 'border';
+  value: string;
   description?: string;
 }
 

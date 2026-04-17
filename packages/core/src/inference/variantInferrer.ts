@@ -9,6 +9,7 @@ import type {
   PropDefinition,
   VariantMapping,
   StyleDefinition,
+  VariantDefinition,
 } from '../types';
 
 /**
@@ -108,7 +109,7 @@ export function extractVariants(
         name: variant.name,
         node: variant,
         variantMapping,
-        variantProps,
+        properties: variantProps,
         styles: extractVariantStyles(variant),
       });
     }
@@ -270,13 +271,4 @@ export function inferSharedProps(
   }
 
   return props;
-}
-
-// Variant 定义接口
-export interface VariantDefinition {
-  name: string;
-  node: DesignNode;
-  variantMapping: VariantMapping;
-  variantProps: Record<string, string>;
-  styles: StyleDefinition;
 }

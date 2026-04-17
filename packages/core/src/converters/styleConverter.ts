@@ -131,6 +131,7 @@ export function extractDesignTokens(nodes: DesignNode[]): DesignTokens {
       const hex = rgbaToHex(style.fill.color);
       tokens.colors.push({
         name: `color-${tokens.colors.length + 1}`,
+        type: 'color',
         value: hex,
         description: `Extracted from ${node.name}`,
       });
@@ -140,12 +141,15 @@ export function extractDesignTokens(nodes: DesignNode[]): DesignTokens {
     if (node.type === 'TEXT') {
       const textStyle = node.style;
       tokens.typography.push({
-        name: `font-${textStyle.fontFamily.toLowerCase().replace(/\s+/g, '-')}-${textStyle.fontSize}`,
-        fontFamily: textStyle.fontFamily,
-        fontSize: textStyle.fontSize,
-        fontWeight: textStyle.fontWeight,
-        lineHeight: textStyle.lineHeightPx ?? textStyle.fontSize * 1.5,
-        letterSpacing: textStyle.letterSpacing,
+        name: `font-${(textStyle.fontFamily as string).toLowerCase().replace(/\s+/g, '-')}-${textStyle.fontSize}`,
+        type: 'typography',
+        value: {
+          fontFamily: textStyle.fontFamily as string,
+          fontSize: textStyle.fontSize as number,
+          fontWeight: textStyle.fontWeight as number,
+          lineHeight: (textStyle.lineHeightPx as number) ?? (textStyle.fontSize as number) * 1.5,
+          letterSpacing: textStyle.letterSpacing as number
+        },
         description: `Typography from ${node.name}`,
       });
     }
@@ -154,16 +158,17 @@ export function extractDesignTokens(nodes: DesignNode[]): DesignTokens {
   // Extract spacing from padding
   const spacingSet = new Set<number>();
   for (const node of nodes) {
-    if ('paddingLeft' in node && node.paddingLeft !== undefined) {
-      spacingSet.add(node.paddingLeft);
+    if ('paddingLeft' in node && (node as { paddingLeft?: number }).paddingLeft !== undefined) {
+      spacingSet.add((node as { paddingLeft: number }).paddingLeft);
     }
-    if ('paddingRight' in node && node.paddingRight !== undefined) {
-      spacingSet.add(node.paddingRight);
+    if ('paddingRight' in node && (node as { paddingRight?: number }).paddingRight !== undefined) {
+      spacingSet.add((node as { paddingRight: number }).paddingRight);
     }
   }
   for (const spacing of spacingSet) {
     tokens.spacing.push({
       name: `spacing-${spacing}`,
+      type: 'spacing',
       value: spacing,
       description: `Extracted spacing value`,
     });
@@ -185,8 +190,8 @@ export function tokensToCSSVariables(tokens: DesignTokens): string {
 
   // Typography
   for (const token of tokens.typography) {
-    lines.push(`  --font-${token.name}: ${token.fontFamily};`);
-    lines.push(`  --font-size-${token.name}: ${token.fontSize}px;`);
+    lines.push(`  --font-${token.name}: ${token.value.fontFamily};`);
+    lines.push(`  --font-size-${token.name}: ${token.value.fontSize}px;`);
   }
 
   // Spacing

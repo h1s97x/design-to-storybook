@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['@design-to-storybook/core', '@design-to-storybook/react', '@design-to-storybook/vue', '@design-to-storybook/angular']
+  external: ['@design-to-storybook/*', 'chokidar', 'commander', 'glob', 'vscode']
 });

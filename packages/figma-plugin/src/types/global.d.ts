@@ -1,13 +1,14 @@
 // Global declarations for Figma Plugin
-declare const figma: {
-  showUI: (html: string, options?: { visible?: boolean; width?: number; height?: number }) => void;
-  ui: {
-    onmessage: (callback: (msg: unknown) => void) => void;
-    postMessage: (msg: unknown) => void;
-  };
-  currentPage: {
-    selection: FigmaSceneNode[];
-  };
+declare const figma: FigmaAPI;
+declare const __html__: string;
+
+interface FigmaAPI {
+  showUI: (html: string, options?: FigmaUIOptions) => void;
+  ui: FigmaUI;
+  currentPage: FigmaPage;
+  clipboard: string;
+  root: FigmaDocument;
+  fileKey: string;
   createFrame: () => FigmaFrameNode;
   createText: () => FigmaTextNode;
   createRectangle: () => FigmaRectangleNode;
@@ -15,11 +16,40 @@ declare const figma: {
   createVector: () => FigmaVectorNode;
   createComponent: () => FigmaComponentNode;
   group: (nodes: FigmaSceneNode[], parent: FigmaPageNode | FigmaFrameNode) => FigmaGroupNode;
-};
+}
 
-declare const __html__: string;
+interface FigmaUIOptions {
+  visible?: boolean;
+  width?: number;
+  height?: number;
+  title?: string;
+}
 
-interface FigmaSceneNode {
+interface FigmaUI {
+  onmessage: (callback: FigmaMessageHandler) => void;
+  postMessage: (msg: unknown) => void;
+}
+
+type FigmaMessageHandler = (msg: FigmaMessage) => void;
+
+interface FigmaMessage {
+  type: string;
+  data?: unknown;
+}
+
+interface FigmaDocument {
+  children: FigmaPageNode[];
+}
+
+interface FigmaPage {
+  selection: FigmaSceneNode[];
+  name: string;
+  children: FigmaSceneNode[];
+}
+
+type FigmaSceneNode = FigmaFrameNode | FigmaTextNode | FigmaRectangleNode | FigmaEllipseNode | FigmaVectorNode | FigmaComponentNode | FigmaGroupNode;
+
+interface FigmaBaseNode {
   id: string;
   name: string;
   type: string;
@@ -31,9 +61,10 @@ interface FigmaSceneNode {
   strokeWeight?: number;
   cornerRadius?: number;
   effects?: FigmaEffect[];
+  blendedUnder?: boolean;
 }
 
-interface FigmaFrameNode extends FigmaSceneNode {
+interface FigmaFrameNode extends FigmaBaseNode {
   layoutMode?: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   primaryAxisSizingMode?: 'FIXED' | 'AUTO';
   counterAxisSizingMode?: 'FIXED' | 'AUTO';
@@ -46,32 +77,51 @@ interface FigmaFrameNode extends FigmaSceneNode {
   itemSpacing?: number;
 }
 
-interface FigmaTextNode extends FigmaSceneNode {
+interface FigmaTextNode extends FigmaBaseNode {
   characters: string;
   fontSize: number;
-  fontName: { family: string; style: string };
+  fontName: FigmaFontName;
   letterSpacing: number;
   lineHeightPx: number;
   lineHeightPercent: number;
+  textStyleId?: string;
 }
 
-type FigmaRectangleNode = FigmaSceneNode;
-type FigmaEllipseNode = FigmaSceneNode;
-type FigmaVectorNode = FigmaSceneNode;
-type FigmaComponentNode = FigmaSceneNode;
-type FigmaGroupNode = FigmaSceneNode;
-type FigmaPageNode = FigmaSceneNode;
+interface FigmaRectangleNode extends FigmaBaseNode {}
+interface FigmaEllipseNode extends FigmaBaseNode {}
+interface FigmaVectorNode extends FigmaBaseNode {}
+interface FigmaComponentNode extends FigmaBaseNode {}
+interface FigmaGroupNode extends FigmaBaseNode {}
+interface FigmaPageNode extends FigmaBaseNode {}
 
 interface FigmaPaint {
   type: string;
-  color?: { r: number; g: number; b: number };
+  visible?: boolean;
   opacity?: number;
+  color?: FigmaRGB;
+}
+
+interface FigmaRGB {
+  r: number;
+  g: number;
+  b: number;
 }
 
 interface FigmaEffect {
   type: string;
-  color?: { r: number; g: number; b: number };
-  offset?: { x: number; y: number };
+  visible?: boolean;
+  color?: FigmaRGB;
+  offset?: FigmaVector;
   spread?: number;
   radius?: number;
+}
+
+interface FigmaVector {
+  x: number;
+  y: number;
+}
+
+interface FigmaFontName {
+  family: string;
+  style: string;
 }

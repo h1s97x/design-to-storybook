@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import type { DesignNode, PropDefinition, VariantDefinition } from '@design-to-storybook/core';
+import type { ReactConvertOptions, VueGeneratorOptions, AngularGeneratorOptions } from '@design-to-storybook/core';
 
 export async function convertCommand(uri?: vscode.Uri) {
   const config = vscode.workspace.getConfiguration('designToStorybook');
@@ -26,8 +28,7 @@ export async function convertCommand(uri?: vscode.Uri) {
   const framework = config.get<string>('framework', 'react');
   const outputDir = config.get<string>('outputDirectory', './src/components');
   const typescript = config.get<boolean>('typescript', true);
-  // styleFormat is available for future use
-  void config.get<string>('styleFormat', 'css');
+  void config.get<string>('styleFormat', 'css'); // Reserved for future use
 
   // Show progress
   await vscode.window.withProgress({
@@ -38,42 +39,41 @@ export async function convertCommand(uri?: vscode.Uri) {
     try {
       progress.report({ message: 'Reading Figma JSON...' });
       const content = fs.readFileSync(filePath, 'utf-8');
-      const designData = JSON.parse(content);
+      const designData = JSON.parse(content) as DesignNode | DesignNode[];
 
       progress.report({ message: 'Generating component...' });
       
-      // Import converters based on framework
+      // Ensure array format
+      const nodes: DesignNode[] = Array.isArray(designData) ? designData : [designData];
+      
+      // Generate component based on framework
       let componentCode: string;
       let storyCode: string;
 
       if (framework === 'react') {
-        const { generateReactComponent, generateStoryFile } = await import('@design-to-storybook/react');
-        const componentResult = generateReactComponent(designData, []);
-        const { storyFile } = generateStoryFile('Button', 'Button.tsx', []);
+        const { generateReactComponent, generateReactStory } = await import('@design-to-storybook/react');
+        const reactOptions: Partial<ReactConvertOptions> = { typescript };
+        const componentResult = generateReactComponent(nodes, reactOptions);
+        const props: PropDefinition[] = [];
+        const storyResult = generateReactStory('Button', componentResult.code, props, []);
         componentCode = componentResult.code;
-        storyCode = storyFile;
+        storyCode = storyResult.storyFile;
       } else if (framework === 'vue') {
         const { VueComponentGenerator, VueStoryGenerator } = await import('@design-to-storybook/vue');
-        const componentGenerator = new VueComponentGenerator();
-        const storyGenerator = new VueStoryGenerator();
-        const componentResult = componentGenerator.generate(designData);
-        const storyResult = storyGenerator.generate(
-          componentResult.sfc.split('\n')[0].match(/<template>/)?.[0] || 'Button',
-          'Button.vue',
-          []
-        );
+        const vueOptions: Partial<VueGeneratorOptions> = { typescript };
+        const componentGenerator = new VueComponentGenerator(vueOptions);
+        const storyGenerator = new VueStoryGenerator(vueOptions);
+        const componentResult = componentGenerator.generate(nodes[0], []);
+        const storyResult = storyGenerator.generate('Button', 'Button.vue', []);
         componentCode = componentResult.sfc;
         storyCode = storyResult.storyFile;
       } else if (framework === 'angular') {
         const { AngularComponentGenerator, AngularStoryGenerator } = await import('@design-to-storybook/angular');
-        const componentGenerator = new AngularComponentGenerator();
-        const storyGenerator = new AngularStoryGenerator();
-        const componentResult = componentGenerator.generate(designData, []);
-        const storyResult = storyGenerator.generate(
-          componentResult.component.split('\n')[0].match(/@Component/)?.[0] || 'Button',
-          'button.component.ts',
-          []
-        );
+        const angularOptions: Partial<AngularGeneratorOptions> = { typescript };
+        const componentGenerator = new AngularComponentGenerator(angularOptions);
+        const storyGenerator = new AngularStoryGenerator(angularOptions);
+        const componentResult = componentGenerator.generate(nodes[0], []);
+        const storyResult = storyGenerator.generate('Button', 'button.component.ts', []);
         componentCode = componentResult.component;
         storyCode = storyResult.storyFile;
       } else {
@@ -97,34 +97,20 @@ export async function convertCommand(uri?: vscode.Uri) {
       const ext = typescript ? '.tsx' : '.jsx';
 
       // Write component file
-      const componentPath = path.join(outputPath, `${componentName}${ext}`);
-      fs.writeFileSync(componentPath, componentCode);
-
+      const componentFile = path.join(outputPath, `${componentName}${ext}`);
+      fs.writeFileSync(componentFile, componentCode);
+      
       // Write story file
-      const storyPath = path.join(outputPath, `${componentName}.stories${ext}`);
-      fs.writeFileSync(storyPath, storyCode);
+      const storyExt = typescript ? '.stories.tsx' : '.stories.jsx';
+      const storyFile = path.join(outputPath, `${componentName}${storyExt}`);
+      fs.writeFileSync(storyFile, storyCode);
 
       progress.report({ message: 'Done!' });
+      vscode.window.showInformationMessage(`Converted to ${componentName} component!`);
       
-      // Show success message
-      const choice = await vscode.window.showInformationMessage(
-        `Successfully converted to ${framework} component!`,
-        'Open Component',
-        'Open Story',
-        'Open Folder'
-      );
-
-      if (choice === 'Open Component') {
-        vscode.commands.executeCommand('vscode.open', vscode.Uri.file(componentPath));
-      } else if (choice === 'Open Story') {
-        vscode.commands.executeCommand('vscode.open', vscode.Uri.file(storyPath));
-      } else if (choice === 'Open Folder') {
-        vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(outputPath));
-      }
-
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      vscode.window.showErrorMessage(`Conversion failed: ${message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showErrorMessage(`Conversion failed: ${errorMessage}`);
     }
   });
 }

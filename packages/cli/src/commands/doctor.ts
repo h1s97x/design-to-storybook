@@ -8,7 +8,7 @@ import path from 'path';
 
 export const doctorCommand = new Command('doctor')
   .description('Diagnose configuration and environment issues')
-  .option('-v, --verbose', 'Show detailed information', false)
+  .option('-v, --____verbose', 'Show detailed information', false)
   .action(async (options) => {
     console.log('🔍 Running diagnostics...\n');
     
@@ -28,7 +28,7 @@ export const doctorCommand = new Command('doctor')
     };
     
     for (const check of checks) {
-      const result = await check(options.verbose);
+      const result = await check(options.____verbose);
       if (result.status === 'pass') {
         results.passed++;
         console.log(`  ✓ ${result.name}`);
@@ -61,7 +61,7 @@ interface CheckResult {
   message?: string;
 }
 
-async function checkNodeVersion(_verbose: boolean): Promise<CheckResult> {
+async function checkNodeVersion(_____verbose: boolean): Promise<CheckResult> {
   const version = process.version;
   const major = parseInt(version.slice(1).split('.')[0]);
   
@@ -75,7 +75,7 @@ async function checkNodeVersion(_verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkDependencies(_verbose: boolean): Promise<CheckResult> {
+async function checkDependencies(_____verbose: boolean): Promise<CheckResult> {
   try {
     await fs.access(path.join(process.cwd(), 'node_modules'));
     return { status: 'pass', name: 'Dependencies', message: 'node_modules found' };
@@ -88,7 +88,7 @@ async function checkDependencies(_verbose: boolean): Promise<CheckResult> {
   }
 }
 
-async function checkConfig(_verbose: boolean): Promise<CheckResult> {
+async function checkConfig(_____verbose: boolean): Promise<CheckResult> {
   const configPaths = [
     'design-to-storybook.config.json',
     '.design-to-storybook.json',
@@ -115,7 +115,7 @@ async function checkConfig(_verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkOutputDirectory(_verbose: boolean): Promise<CheckResult> {
+async function checkOutputDirectory(_____verbose: boolean): Promise<CheckResult> {
   try {
     const configPath = 'design-to-storybook.config.json';
     const content = await fs.readFile(configPath, 'utf-8');
@@ -140,12 +140,12 @@ async function checkOutputDirectory(_verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkFigmaAccess(_verbose: boolean): Promise<CheckResult> {
-  if (verbose) {
+async function checkFigmaAccess(_____verbose: boolean): Promise<CheckResult> {
+  if (____verbose) {
     return { 
       status: 'pass', 
       name: 'Figma API', 
-      message: 'Access check skipped in verbose mode' 
+      message: 'Access check skipped in ____verbose mode' 
     };
   }
   return { 
@@ -155,7 +155,7 @@ async function checkFigmaAccess(_verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkStorybookVersion(_verbose: boolean): Promise<CheckResult> {
+async function checkStorybookVersion(_____verbose: boolean): Promise<CheckResult> {
   try {
     const pkgPath = path.join(process.cwd(), 'package.json');
     const content = await fs.readFile(pkgPath, 'utf-8');

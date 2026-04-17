@@ -174,6 +174,7 @@ export class Logger {
 export interface LoggerOptions {
   level?: LogLevel;
   maxEntries?: number;
+  prefix?: string;
   handlers?: LogHandler[];
 }
 

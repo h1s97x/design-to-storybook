@@ -1,146 +1,75 @@
 /**
- * Batch 命令
- * 批量转换多个文件
+ * Batch conversion command
  */
 import { Command } from 'commander';
-import fs from 'fs/promises';
-import path from 'path';
-import { DesignConverter, Logger, LogLevel, ConversionError } from '@design-to-storybook/core';
+import { readFileSync, writeFileSync } from 'fs';
+import { glob } from 'glob';
+import { DesignConverter, Logger, LogLevel } from '@design-to-storybook/core';
+import { convertToReact } from '@design-to-storybook/react';
+import { writeFiles } from '../utils/fileWriter.js';
+
 const logger = new Logger({ level: LogLevel.INFO, prefix: 'batch' });
 
 export const batchCommand = new Command('batch')
-  .description('Batch convert multiple files')
-  .requiredOption('-i, --input <path>', 'Input directory or file pattern')
+  .description('Batch convert multiple Figma JSON files')
+  .requiredOption('-p, --pattern <pattern>', 'Glob pattern for input files')
   .requiredOption('-o, --output <path>', 'Output directory')
-  .option('-f, --framework <framework>', 'Target framework (react|vue|angular)', 'react')
+  .option('-f, --framework <framework>', 'Target framework', 'react')
   .option('-t, --typescript', 'Generate TypeScript files', true)
-  .option('--pattern <pattern>', 'File pattern to match', '*.json')
-  .option('--parallel <number>', 'Number of parallel conversions', '4')
-  .option('--skip-errors', 'Skip files that fail to convert', false)
+  .option('--verbose', 'Enable verbose logging', false)
   .action(async (options) => {
-    const { input, output, framework, typescript, pattern, parallel, skipErrors } = options;
+    const { pattern, output, framework, typescript } = options;
+    logger.info(`Searching for files matching: ${pattern}`);
     
-    logger.info(`Batch converting files from ${input}`);
-    logger.info(`Output directory: ${output}`);
-    logger.info(`Framework: ${framework}`);
+    const files = await glob(pattern);
     
-    const converter = new DesignConverter({ framework, typescript });
+    if (files.length === 0) {
+      logger.error(`No files found matching: ${pattern}`);
+      return;
+    }
     
-    // Find all matching files
-    const files = await findFiles(input, pattern);
     logger.info(`Found ${files.length} files to convert`);
     
-    const results = {
-      success: 0,
-      failed: 0,
-      skipped: 0,
-      errors: [] as ConversionError[]
-    };
+    const converter = new DesignConverter({ framework: framework as 'react' | 'vue' | 'angular', typescript });
     
-    // Process files in parallel batches
-    const batchSize = parseInt(parallel);
-    for (let i = 0; i < files.length; i += batchSize) {
-      const batch = files.slice(i, i + batchSize);
-      const batchPromises = batch.map(async (file) => {
-        try {
-          await convertSingleFile(file, output, converter);
-          results.success++;
-          logger.success(`✓ ${file}`);
-        } catch {
-          results.failed++;
-          const err = error as ConversionError;
-          results.errors.push(err);
-          
-          if (skipErrors) {
-            logger.warn(`✗ ${file}: ${err.message}`);
-          } else {
-            throw error;
-          }
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const file of files) {
+      try {
+        logger.info(`Processing: ${file}`);
+        const content = readFileSync(file, 'utf-8');
+        const data = JSON.parse(content);
+        const nodes = Array.isArray(data) ? data : [data];
+        
+        const result = converter.convert(nodes);
+        
+        // Generate component and story
+        let componentCode = '';
+        let storyCode = '';
+        
+        if (framework === 'react') {
+          const reactResult = convertToReact(nodes, { typescript });
+          componentCode = reactResult.code;
+          storyCode = '';
         }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Progress: ${Math.min(i + batchSize, files.length)}/${files.length}`);
-    }
-    
-    // Print summary
-    logger.info('\n--- Conversion Summary ---');
-    logger.info(`Total: ${files.length}`);
-    logger.success(`Success: ${results.success}`);
-    if (results.failed > 0) {
-      logger.error(`Failed: ${results.failed}`);
-    }
-    if (results.skipped > 0) {
-      logger.warn(`Skipped: ${results.skipped}`);
-    }
-    
-    if (results.errors.length > 0) {
-      logger.info('\n--- Errors ---');
-      results.errors.forEach((err, index) => {
-        logger.error(`${index + 1}. ${err.context?.fileName || 'Unknown'}: ${err.message}`);
-      });
-    }
-  });
-
-async function findFiles(input: string, _pattern: string): Promise<string[]> {
-  const files: string[] = [];
-  
-  try {
-    const stat = await fs.stat(input);
-    
-    if (stat.isDirectory()) {
-      const allFiles = await fs.readdir(input);
-      files.push(
-        ...allFiles
-          .filter(f => f.endsWith('.json'))
-          .map(f => path.join(input, f))
-      );
-    } else if (stat.isFile() && input.endsWith('.json')) {
-      files.push(input);
-    }
-  } catch {
-    // Handle glob patterns or multiple paths
-    const parts = input.split(',');
-    for (const part of parts) {
-      const trimmed = part.trim();
-      if (trimmed.endsWith('.json')) {
-        try {
-          await fs.access(trimmed);
-          files.push(trimmed);
-        } catch {
-          logger.warn(`File not found: ${trimmed}`);
-        }
+        
+        const componentName = file.replace(/\.json$/, '').split('/').pop() || 'Component';
+        
+        writeFiles(output, {
+          component: componentCode,
+          story: storyCode,
+          styles: '',
+          types: ''
+        }, componentName);
+        
+        successCount++;
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        logger.error(`Failed to convert ${file}: ${errorMessage}`);
+        failCount++;
       }
     }
-  }
-  
-  return files;
-}
-
-async function convertSingleFile(
-  inputPath: string,
-  outputDir: string,
-  converter: DesignConverter
-): Promise<void> {
-  const content = await fs.readFile(inputPath, 'utf-8');
-  const designData = JSON.parse(content);
-  
-  const componentName = path.basename(inputPath, '.json');
-  const result = converter.convert(designData);
-  
-  // Write output files
-  await fs.mkdir(outputDir, { recursive: true });
-  
-  // Write component file
-  const componentExt = inputPath.includes('typescript') || inputPath.includes('ts') ? '.tsx' : '.jsx';
-  await fs.writeFile(
-    path.join(outputDir, `${componentName}${componentExt}`),
-    result.component
-  );
-  
-  // Write story file
-  await fs.writeFile(
-    path.join(outputDir, `${componentName}.stories.tsx`),
-    result.story
-  );
-}
+    
+    logger.success(`Batch conversion complete: ${successCount} succeeded, ${failCount} failed`);
+  });

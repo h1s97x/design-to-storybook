@@ -4,8 +4,11 @@
  */
 import { Command } from 'commander';
 import chokidar from 'chokidar';
-import { convertFile } from '../utils/fileWriter.js';
+import { writeFile } from 'fs/promises';
 import { DesignConverter, Logger, LogLevel } from '@design-to-storybook/core';
+import { convertToReact } from '@design-to-storybook/react';
+import { writeFiles } from '../utils/fileWriter.js';
+
 const logger = new Logger({ level: LogLevel.INFO, prefix: 'watch' });
 
 export const watchCommand = new Command('watch')
@@ -22,11 +25,11 @@ export const watchCommand = new Command('watch')
     logger.info(`Output directory: ${output}`);
     logger.info(`Framework: ${framework}`);
     
-    const converter = new DesignConverter({ framework, typescript });
+    const converter = new DesignConverter({ framework: framework as 'react' | 'vue' | 'angular', typescript });
     
     // Initial conversion
     logger.info('Running initial conversion...');
-    await processDirectory(input, output, converter);
+    logger.success('Watch mode ready. Press Ctrl+C to exit.');
     
     // Watch for changes
     const watcher = chokidar.watch(input, {
@@ -39,32 +42,25 @@ export const watchCommand = new Command('watch')
     });
     
     watcher
-      .on('add', (path) => handleFile(path, 'add', input, output, converter, verbose))
-      .on('change', (path) => handleFile(path, 'change', input, output, converter, verbose))
-      .on('unlink', (path) => handleFile(path, 'unlink', input, output, converter, verbose));
+      .on('add', (path) => handleFile(path, 'add', input, output, converter, logger))
+      .on('change', (path) => handleFile(path, 'change', input, output, converter, logger))
+      .on('unlink', (path) => handleFile(path, 'unlink', input, output, converter, logger));
     
     logger.info('Watching for changes. Press Ctrl+C to exit.');
   });
-
-async function processDirectory(_input: string, _output: string, _converter: DesignConverter) {
-  // Implementation for processing directory
-  logger.info(`Processing directory: ${_input}`);
-}
 
 async function handleFile(
   filePath: string,
   event: string,
   _input: string,
-  _output: string,
-  _converter: DesignConverter,
-  verbose: boolean
+  output: string,
+  converter: DesignConverter,
+  log: Logger
 ) {
-  if (verbose) {
-    logger.info(`File ${event}: ${filePath}`);
-  }
+  log.info(`File ${event}: ${filePath}`);
   
   if (event === 'unlink') {
-    logger.info(`Removed: ${filePath}`);
+    log.info(`Removed: ${filePath}`);
     return;
   }
   
@@ -73,9 +69,21 @@ async function handleFile(
   }
   
   try {
-    await convertFile(filePath, output, converter);
-    logger.success(`Converted: ${filePath}`);
+    const content = fs.readFileSync(filePath, "utf-8");
+    const designData = JSON.parse(content);
+    const nodes = Array.isArray(designData) ? designData : [designData];
+    const result = converter.convert(nodes);
+    
+    for (const component of result.components) {
+      const componentOutput = output;
+      await writeComponentFiles(componentOutput, component);
+      if (result.stories) {
+        await writeStoryFiles(componentOutput, result.stories);
+      }
+    }
+    
+    log.success(`Converted: ${filePath}`);
   } catch (error) {
-    logger.error(`Failed to convert ${filePath}: ${(error as Error).message}`);
+    log.error(`Failed to convert ${filePath}: ${(error as Error).message}`);
   }
 }

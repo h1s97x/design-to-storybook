@@ -1,13 +1,11 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/main.ts', 'src/ui.tsx'],
-  format: ['esm'],
+  entry: ['src/index.ts'],
+  format: ['cjs', 'esm'],
+  dts: false,
   splitting: false,
   sourcemap: true,
   clean: true,
-  target: 'es2022',
-  platform: 'browser',
-  // Figma Plugin 不需要外部依赖打包
-  external: [],
+  external: ['@design-to-storybook/core', '@design-to-storybook/react', '@design-to-storybook/vue', '@design-to-storybook/angular']
 });

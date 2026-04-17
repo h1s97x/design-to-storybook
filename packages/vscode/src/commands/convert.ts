@@ -46,23 +46,35 @@ export async function convertCommand(uri?: vscode.Uri) {
       let storyCode: string;
 
       if (framework === 'react') {
-        const { ReactComponentGenerator } = await import('@design-to-storybook/react');
-        const generator = new ReactComponentGenerator();
-        const result = generator.generate(designData);
-        componentCode = result.component;
-        storyCode = result.story;
+        const { generateReactComponent, generateStoryFile } = await import('@design-to-storybook/react');
+        const { component } = generateReactComponent(designData, {});
+        const { storyFile } = generateStoryFile('Button', 'Button.tsx', []);
+        componentCode = component;
+        storyCode = storyFile;
       } else if (framework === 'vue') {
-        const { VueComponentGenerator } = await import('@design-to-storybook/vue');
-        const generator = new VueComponentGenerator();
-        const result = generator.generate(designData);
-        componentCode = result.sfc;
-        storyCode = result.storyFile;
+        const { VueComponentGenerator, VueStoryGenerator } = await import('@design-to-storybook/vue');
+        const componentGenerator = new VueComponentGenerator();
+        const storyGenerator = new VueStoryGenerator();
+        const componentResult = componentGenerator.generate(designData);
+        const storyResult = storyGenerator.generate(
+          componentResult.sfc.split('\n')[0].match(/<template>/)?.[0] || 'Button',
+          'Button.vue',
+          []
+        );
+        componentCode = componentResult.sfc;
+        storyCode = storyResult.storyFile;
       } else if (framework === 'angular') {
-        const { AngularComponentGenerator } = await import('@design-to-storybook/angular');
-        const generator = new AngularComponentGenerator();
-        const result = generator.generate(designData);
-        componentCode = result.component;
-        storyCode = result.storyFile;
+        const { AngularComponentGenerator, AngularStoryGenerator } = await import('@design-to-storybook/angular');
+        const componentGenerator = new AngularComponentGenerator();
+        const storyGenerator = new AngularStoryGenerator();
+        const componentResult = componentGenerator.generate(designData, []);
+        const storyResult = storyGenerator.generate(
+          componentResult.component.split('\n')[0].match(/@Component/)?.[0] || 'Button',
+          'button.component.ts',
+          []
+        );
+        componentCode = componentResult.component;
+        storyCode = storyResult.storyFile;
       } else {
         throw new Error(`Unsupported framework: ${framework}`);
       }

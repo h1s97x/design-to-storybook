@@ -5,8 +5,8 @@
 import { Command } from 'commander';
 import fs from 'fs/promises';
 import path from 'path';
-import { DesignConverter } from '@design-to-storybook/core';
-import { logger, ConversionError } from '@design-to-storybook/core';
+import { DesignConverter, Logger, ConversionError } from '@design-to-storybook/core';
+const logger = new Logger({ level: 'info', prefix: 'batch' });
 
 export const batchCommand = new Command('batch')
   .description('Batch convert multiple files')

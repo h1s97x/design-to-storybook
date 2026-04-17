@@ -5,8 +5,8 @@
 import { Command } from 'commander';
 import chokidar from 'chokidar';
 import { convertFile } from '../utils/fileWriter.js';
-import { DesignConverter } from '@design-to-storybook/core';
-import { logger } from '@design-to-storybook/core';
+import { DesignConverter, Logger } from '@design-to-storybook/core';
+const logger = new Logger({ level: 'info', prefix: 'watch' });
 
 export const watchCommand = new Command('watch')
   .description('Watch for file changes and auto-convert')

@@ -2,12 +2,10 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  format: ['esm'],
-  dts: true,
+  format: ['cjs', 'esm'],
+  dts: false,
   splitting: false,
   sourcemap: true,
   clean: true,
-  treeshake: true,
-  minify: false,
-  target: 'es2022',
+  external: ['@design-to-storybook/core', '@design-to-storybook/react', '@design-to-storybook/vue', '@design-to-storybook/angular']
 });

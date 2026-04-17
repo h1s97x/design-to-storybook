@@ -1,6 +1,18 @@
-import type { ConversionError } from '../types/index.js';
-
-export type { ConversionError } from '../types/index.js';
+/**
+ * Conversion error type for reporting
+ */
+export interface ConversionError {
+  nodeId: string;
+  nodeName: string;
+  message: string;
+  severity: 'error' | 'warning';
+  context?: {
+    fileName?: string;
+    field?: string;
+    expected?: string;
+    actual?: unknown;
+  };
+}
 
 /**
  * Error codes for design-to-storybook

@@ -1,0 +1,47 @@
+{
+  "name": "@design-to-storybook/vue",
+  "version": "0.1.0",
+  "description": "Vue 3 code generator for design-to-storybook",
+  "author": "h1s97x",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "@design-to-storybook/core": "workspace:*"
+  },
+  "dependencies": {
+    "@design-to-storybook/core": "workspace:*"
+  },
+  "devDependencies": {
+    "vue": "^3.4.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "dts": true,
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "treeshake": true
+  }
+}

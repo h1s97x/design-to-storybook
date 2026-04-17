@@ -365,13 +365,46 @@ export interface PropDefinition {
     max?: number;
     step?: number;
   };
+  controlType?: 'text' | 'boolean' | 'number' | 'select' | 'radio' | 'check' | 'range';
+  options?: string[];
   enum?: string[];
 }
 
+// Variant mapping for Component Sets
+export interface VariantMapping {
+  [propertyName: string]: string;
+}
+
+// Component Property (alias for internal use)
+export type ComponentProperty = ComponentPropertyValue;
+
+// Extended StyleDefinition with all style properties
 export interface StyleDefinition {
   className: string;
   css: Record<string, string>;
   tailwind?: Record<string, string>;
+  // Extended properties
+  backgroundColor?: string;
+  borderRadius?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  boxShadow?: string;
+  opacity?: number;
+  width?: number;
+  height?: number;
+  display?: string;
+  flexDirection?: string;
+  alignItems?: string;
+  justifyContent?: string;
+  gap?: number;
+  paddingTop?: number;
+  paddingRight?: number;
+  paddingBottom?: number;
+  paddingLeft?: number;
+  marginTop?: number;
+  marginRight?: number;
+  marginBottom?: number;
+  marginLeft?: number;
 }
 
 export interface GeneratedComponent {

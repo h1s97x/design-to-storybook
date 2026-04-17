@@ -13,9 +13,39 @@ export { createFrameNode, createTextNode, isDesignNode, getNodeBounds, getPrimar
 
 // Inference
 export { inferProps } from './inference/propsInferrer.js';
+export { 
+  inferComponentProperties, 
+  extractVariants, 
+  analyzeVariantCombinations, 
+  inferSharedProps,
+  type VariantDefinition 
+} from './inference/variantInferrer.js';
+export {
+  createPropertyMappings,
+  inferInteractionStates,
+  PRESET_MAPPINGS,
+  type ComponentPropertyMapping
+} from './inference/propertyMapper.js';
+export {
+  inferTypescriptDefinition,
+  generateRelatedTypes,
+  mergeProps,
+  generateTypeFile,
+  generateReactImports,
+  type TypeInferenceConfig,
+  type TypeDefinition
+} from './inference/typescriptInferrer.js';
 
 // Converters
 export { convertStyles, extractDesignTokens, stylesToCSS } from './converters/styleConverter.js';
+export { 
+  convertToTailwindColor, 
+  convertToTailwindRadius, 
+  convertToTailwindShadow,
+  convertStyleToTailwind,
+  generateTailwindConfig,
+  type TailwindPreset 
+} from './converters/tailwindConverter.js';
 
 /**
  * Main conversion function

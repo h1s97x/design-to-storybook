@@ -4,4 +4,5 @@
  * Export functionality for Figma designs
  */
 
-export { extractFigmaNodes, exportFigmaSelection } from './main';
+// Re-export types
+export type { ExtractedFill, ExtractedEffect } from './types/global.d';

@@ -111,7 +111,7 @@ export function createPropertyMappings(
     if (preset) {
       mappings.push({
         ...preset,
-        defaultValue: prop.defaultValue ?? preset.defaultValue,
+        defaultValue: (prop.defaultValue ?? preset.defaultValue) as string | number | boolean | undefined,
       });
     } else {
       // 自动推断映射
@@ -161,7 +161,7 @@ function inferPropertyMapping(
         figmaProperty: name,
         propName: normalizedName,
         type: 'boolean',
-        defaultValue: prop.defaultValue ?? false,
+        defaultValue: (prop.defaultValue ?? false) as boolean,
         description: `From component property: ${name}`,
       };
 
@@ -170,7 +170,7 @@ function inferPropertyMapping(
         figmaProperty: name,
         propName: normalizedName,
         type: 'string',
-        defaultValue: prop.defaultValue ?? '',
+        defaultValue: (prop.defaultValue ?? '') as string,
         description: `From component property: ${name}`,
       };
 
@@ -189,7 +189,7 @@ function inferPropertyMapping(
         figmaProperty: name,
         propName: normalizedName,
         type: values.length > 0 ? 'enum' : 'string',
-        defaultValue: prop.defaultValue ?? values[0] ?? 'default',
+        defaultValue: (prop.defaultValue ?? values[0] ?? 'default') as string,
         enumValues: values.length > 0 ? values : undefined,
         description: `Variant property: ${name}`,
       };
@@ -207,7 +207,7 @@ function inferPropertyMapping(
         figmaProperty: name,
         propName: normalizedName,
         type: 'string',
-        defaultValue: prop.defaultValue ?? '',
+        defaultValue: (prop.defaultValue ?? '') as string,
         description: `Unknown property type: ${name}`,
       };
   }

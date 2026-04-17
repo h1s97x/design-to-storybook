@@ -5,6 +5,28 @@
 
 import type { DesignNode, PropDefinition } from '@design-to-storybook/core';
 import { extractStyle, inferHTMLTag, generateClassName } from '@design-to-storybook/core';
+import type { ExtractedFill, ExtractedStroke, ExtractedEffect } from '@design-to-storybook/core';
+
+export interface VueComponentOutput {
+  /** Vue SFC 文件内容 */
+  sfc: string;
+  /** Props 定义 */
+  propsDefinition: string;
+  /** CSS 类名映射 */
+  classMappings: Record<string, string>;
+}
+
+export interface VueStyle {
+  backgroundColor?: string;
+  borderRadius?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  boxShadow?: string;
+  opacity?: number;
+  fill?: ExtractedFill;
+  stroke?: ExtractedStroke;
+  effects: ExtractedEffect[];
+}
 
 export interface VueComponentOutput {
   /** Vue SFC 文件内容 */
@@ -147,24 +169,28 @@ export class VueComponentGenerator {
   /**
    * 生成样式
    */
-  private generateStyles(style: StyleDefinition, className: string): string {
+  private generateStyles(style: VueStyle, className: string): string {
     const cssProps: string[] = [];
     
     // 布局样式
-    if (style.display) cssProps.push(`  display: ${style.display};`);
-    if (style.flexDirection) cssProps.push(`  flex-direction: ${style.flexDirection};`);
-    if (style.justifyContent) cssProps.push(`  justify-content: ${style.justifyContent};`);
-    if (style.alignItems) cssProps.push(`  align-items: ${style.alignItems};`);
-    if (style.gap !== undefined) cssProps.push(`  gap: ${style.gap}px;`);
-    if (style.width !== undefined) cssProps.push(`  width: ${style.width}px;`);
-    if (style.height !== undefined) cssProps.push(`  height: ${style.height}px;`);
+    if ('display' in style && style.display) cssProps.push(`  display: ${style.display};`);
+    if ('flexDirection' in style && style.flexDirection) cssProps.push(`  flex-direction: ${style.flexDirection};`);
+    if ('justifyContent' in style && style.justifyContent) cssProps.push(`  justify-content: ${style.justifyContent};`);
+    if ('alignItems' in style && style.alignItems) cssProps.push(`  align-items: ${style.alignItems};`);
+    if ('gap' in style && style.gap !== undefined) cssProps.push(`  gap: ${style.gap}px;`);
+    if ('width' in style && style.width !== undefined) cssProps.push(`  width: ${style.width}px;`);
+    if ('height' in style && style.height !== undefined) cssProps.push(`  height: ${style.height}px;`);
     
     // 颜色样式
     if (style.backgroundColor) cssProps.push(`  background-color: ${style.backgroundColor};`);
-    if (style.color) cssProps.push(`  color: ${style.color};`);
+    if (style.fill?.color) {
+      const { r, g, b } = style.fill.color;
+      cssProps.push(`  background-color: rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)});`);
+    }
+    if (style.fill) cssProps.push(`  color: ${style.fill};`);
     
     // 边框样式
-    if (style.borderWidth) cssProps.push(`  border: ${style.borderWidth}px solid ${style.borderColor || '#000'};`);
+    if ('borderWidth' in style && style.borderWidth) cssProps.push(`  border: ${style.borderWidth}px solid ${style.borderColor || '#000'};`);
     if (style.borderRadius !== undefined) cssProps.push(`  border-radius: ${style.borderRadius}px;`);
     
     // 效果样式
@@ -172,16 +198,16 @@ export class VueComponentGenerator {
     if (style.opacity !== undefined) cssProps.push(`  opacity: ${style.opacity};`);
     
     // 文本样式
-    if (style.fontSize !== undefined) cssProps.push(`  font-size: ${style.fontSize}px;`);
-    if (style.fontWeight) cssProps.push(`  font-weight: ${style.fontWeight};`);
-    if (style.textAlign) cssProps.push(`  text-align: ${style.textAlign};`);
+    if ('fontSize' in style && style.fontSize !== undefined) cssProps.push(`  font-size: ${style.fontSize}px;`);
+    if ('fontWeight' in style && style.fontWeight) cssProps.push(`  font-weight: ${style.fontWeight};`);
+    if ('textAlign' in style && style.textAlign) cssProps.push(`  text-align: ${style.textAlign};`);
     
     // 间距样式
-    if (style.padding) cssProps.push(`  padding: ${style.padding}px;`);
-    if (style.margin) cssProps.push(`  margin: ${style.margin}px;`);
+    if ('padding' in style && style.padding !== undefined) cssProps.push(`  padding: ${style.padding}px;`);
+    if ('margin' in style && style.margin !== undefined) cssProps.push(`  margin: ${style.margin}px;`);
     
     // 位置样式
-    if (style.position) cssProps.push(`  position: ${style.position};`);
+    if ('position' in style && style.position) cssProps.push(`  position: ${style.position};`);
     
     if (cssProps.length === 0) return '';
     

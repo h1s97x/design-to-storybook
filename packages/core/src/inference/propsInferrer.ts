@@ -69,7 +69,8 @@ function inferFromComponentProperties(node: DesignNode): PropDefinition[] {
     const definitions = (node as { componentPropertyDefinitions?: Record<string, unknown> }).componentPropertyDefinitions;
     if (definitions) {
       for (const [key, def] of Object.entries(definitions)) {
-        const prop = inferComponentPropertyDefinition(key, def as unknown);
+        const defTyped = def as { type: string; defaultValue?: unknown; variantOptions?: string[] };
+        const prop = inferComponentPropertyDefinition(key, defTyped);
         if (prop) {
           props.push(prop);
         }
@@ -137,7 +138,7 @@ function inferComponentProperty(key: string, value: ComponentPropertyValue): Pro
  */
 function inferComponentPropertyDefinition(
   key: string,
-  def: { type: string; defaultValue?: unknown }
+  def: { type: string; defaultValue?: unknown; variantOptions?: string[] }
 ): PropDefinition | null {
   const propName = toCamelCase(key);
 
@@ -147,7 +148,7 @@ function inferComponentPropertyDefinition(
         name: propName,
         type: 'boolean',
         required: false,
-        defaultValue: def.defaultValue ?? false,
+        defaultValue: def.defaultValue as boolean ?? false,
         description: `From Figma component property: ${key}`,
         control: { type: 'boolean' },
       };
@@ -157,7 +158,7 @@ function inferComponentPropertyDefinition(
         name: propName,
         type: 'string',
         required: false,
-        defaultValue: def.defaultValue ?? '',
+        defaultValue: def.defaultValue as string ?? '',
         description: `From Figma component property: ${key}`,
         control: { type: 'text' },
       };
@@ -168,7 +169,7 @@ function inferComponentPropertyDefinition(
         name: 'variant',
         type: options.map((opt: string) => `'${opt}'`).join(' | ') || 'string',
         required: true,
-        defaultValue: def.defaultValue ?? options[0],
+        defaultValue: (def.defaultValue as string) ?? options[0] ?? 'default',
         description: `Component variant property`,
         control: { type: 'select', options },
         enum: options,

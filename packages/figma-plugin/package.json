@@ -9,8 +9,7 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-
-
+    "@types/figma": "^1.0.8",
     "@types/node": "^22.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",

@@ -1,3 +1,4 @@
+// @ts-expect-error - tsup types not available
 import { defineConfig } from 'tsup';
 
 export default defineConfig({

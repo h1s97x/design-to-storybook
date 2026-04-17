@@ -162,15 +162,21 @@ async function extractNode(node: SceneNode): Promise<Record<string, unknown>> {
   }
 
   // Fills
-  if ('fills' in node && node.fills !== figma.mixed) {
-    base.fills = extractFills(node.fills);
+  if ('fills' in node && node.fills) {
+    const fills = node.fills as unknown[];
+    if (fills !== figma.mixed) {
+      base.fills = extractFills(node.fills as readonly Paint[]);
+    }
   }
 
   // Strokes
-  if ('strokes' in node && node.strokes !== figma.mixed) {
-    base.strokes = extractStrokes(node.strokes);
-    if ('strokeWeight' in node) {
-      base.strokeWeight = node.strokeWeight;
+  if ('strokes' in node && node.strokes) {
+    const strokes = node.strokes as unknown[];
+    if (strokes !== figma.mixed) {
+      base.strokes = extractStrokes(node.strokes as readonly Paint[]);
+      if ('strokeWeight' in node) {
+        base.strokeWeight = node.strokeWeight;
+      }
     }
   }
 
@@ -205,8 +211,8 @@ async function extractNode(node: SceneNode): Promise<Record<string, unknown>> {
   }
 
   // Text properties
-  if (node.type === 'TEXT') {
-    const textNode = node as TextNode;
+  if (nodeType === 'TEXT') {
+    const textNode = node as unknown as { characters: string; style: TextNodeStyle; textAlignHorizontal?: string; textAlignVertical?: string };
     base.characters = textNode.characters;
     base.style = {
       fontFamily: textNode.style.fontFamily,
@@ -222,24 +228,27 @@ async function extractNode(node: SceneNode): Promise<Record<string, unknown>> {
   }
 
   // Component properties
-  if (node.type === 'COMPONENT' || node.type === 'COMPONENT_SET' || node.type === 'INSTANCE') {
+  const nodeType = node.type as string;
+  if (nodeType === 'COMPONENT' || nodeType === 'INSTANCE') {
     if ('componentProperties' in node) {
       base.componentProperties = node.componentProperties;
     }
-    if (node.type === 'COMPONENT_SET' && 'componentPropertyDefinitions' in node) {
-      base.componentPropertyDefinitions = (node as unknown as Record<string, unknown>).componentPropertyDefinitions;
-    }
-    if (node.type === 'INSTANCE' && 'componentId' in node) {
+    if (nodeType === 'INSTANCE' && 'componentId' in node) {
       base.componentId = (node as unknown as Record<string, unknown>).componentId;
+    }
+  }
+  if (nodeType === 'COMPONENT_SET') {
+    if ('componentPropertyDefinitions' in node) {
+      base.componentPropertyDefinitions = (node as unknown as Record<string, unknown>).componentPropertyDefinitions;
     }
   }
 
   // Children
-  if ('children' in node) {
-    base.children = [];
+  if ('children' in node && node.children) {
+    (base as Record<string, unknown>).children = [];
     for (const child of node.children) {
       const extractedChild = await extractNode(child);
-      base.children.push(extractedChild);
+      ((base as Record<string, unknown>).children as unknown[]).push(extractedChild);
     }
   }
 
@@ -353,25 +362,30 @@ async function extractDesignTokens(selection: readonly SceneNode[]) {
   const seenColors = new Set<string>();
 
   for (const node of selection) {
+    const nodeType = node.type as string;
     // Extract colors
-    if ('fills' in node && node.fills !== figma.mixed) {
-      for (const fill of node.fills) {
-        if (fill.type === 'SOLID') {
-          const key = `${fill.color.r}-${fill.color.g}-${fill.color.b}`;
-          if (!seenColors.has(key)) {
-            seenColors.add(key);
-            colors.push({
-              name: generateColorName(fill.color),
-              value: rgbToHex(fill.color),
-            });
+    if ('fills' in node && node.fills) {
+      const fills = node.fills as unknown[];
+      if (fills !== figma.mixed) {
+        for (const fill of node.fills as readonly Paint[]) {
+          if (fill.type === 'SOLID') {
+            const color = fill.color as { r: number; g: number; b: number };
+            const key = `${color.r}-${color.g}-${color.b}`;
+            if (!seenColors.has(key)) {
+              seenColors.add(key);
+              colors.push({
+                name: generateColorName(color),
+                value: rgbToHex(color),
+              });
+            }
           }
         }
       }
     }
 
     // Extract typography
-    if (node.type === 'TEXT') {
-      const textNode = node as TextNode;
+    if (nodeType === 'TEXT') {
+      const textNode = node as unknown as { style: TextNodeStyle };
       typography.push({
         name: `text-${textNode.style.fontSize}`,
         fontFamily: textNode.style.fontFamily,
@@ -382,14 +396,15 @@ async function extractDesignTokens(selection: readonly SceneNode[]) {
     }
 
     // Extract spacing
-    if (node.absoluteBoundingBox) {
+    if ('absoluteBoundingBox' in node && node.absoluteBoundingBox) {
+      const bbox = node.absoluteBoundingBox as { width: number; height: number };
       spacing.push({
-        name: `space-${Math.round(node.absoluteBoundingBox.width)}`,
-        value: node.absoluteBoundingBox.width,
+        name: `space-${Math.round(bbox.width)}`,
+        value: bbox.width,
       });
       spacing.push({
-        name: `space-${Math.round(node.absoluteBoundingBox.height)}`,
-        value: node.absoluteBoundingBox.height,
+        name: `space-${Math.round(bbox.height)}`,
+        value: bbox.height,
       });
     }
   }

@@ -166,7 +166,7 @@ function extractShadow(effects?: unknown[]): string | undefined {
   const shadow = effects.find(
     (e: unknown) => (e as { type?: string }).type === 'DROP_SHADOW' || (e as { type?: string }).type === 'INNER_SHADOW'
   ) as { type?: string; color?: { r: number; g: number; b: number; a?: number }; offset?: { x: number; y: number }; radius?: number } | undefined;
-  if (!shadow) return undefined;
+  if (!shadow || !shadow.color) return undefined;
 
   const offsetX = shadow.offset?.x ?? 0;
   const offsetY = shadow.offset?.y ?? 0;

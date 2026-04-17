@@ -163,7 +163,7 @@ function inferComponentPropertyDefinition(
         control: { type: 'text' },
       };
 
-    case 'VARIANT':
+    case 'VARIANT': {
       const options = def.variantOptions || [];
       return {
         name: 'variant',
@@ -174,6 +174,7 @@ function inferComponentPropertyDefinition(
         control: { type: 'select', options },
         enum: options,
       };
+    }
 
     case 'INSTANCE_SWAP':
       return {

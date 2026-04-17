@@ -87,12 +87,12 @@ interface FigmaTextNode extends FigmaBaseNode {
   textStyleId?: string;
 }
 
-interface FigmaRectangleNode extends FigmaBaseNode {}
-interface FigmaEllipseNode extends FigmaBaseNode {}
-interface FigmaVectorNode extends FigmaBaseNode {}
-interface FigmaComponentNode extends FigmaBaseNode {}
-interface FigmaGroupNode extends FigmaBaseNode {}
-interface FigmaPageNode extends FigmaBaseNode {}
+type FigmaRectangleNode = FigmaBaseNode;
+type FigmaEllipseNode = FigmaBaseNode;
+type FigmaVectorNode = FigmaBaseNode;
+type FigmaComponentNode = FigmaBaseNode;
+type FigmaGroupNode = FigmaBaseNode;
+type FigmaPageNode = FigmaBaseNode;
 
 interface FigmaPaint {
   type: string;

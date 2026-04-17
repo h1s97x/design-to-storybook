@@ -273,13 +273,14 @@ export class TokenExtractor {
         case 'color':
           lines.push(`  ${varName}: ${token.value};`);
           break;
-        case 'typography':
+        case 'typography': {
           const typo = token.value;
           lines.push(`  ${varName}-font-family: ${typo.fontFamily};`);
           lines.push(`  ${varName}-font-size: ${typo.fontSize}px;`);
           lines.push(`  ${varName}-font-weight: ${typo.fontWeight};`);
           lines.push(`  ${varName}-line-height: ${typo.lineHeight};`);
           break;
+        }
         case 'spacing':
           lines.push(`  ${varName}: ${token.value}px;`);
           break;

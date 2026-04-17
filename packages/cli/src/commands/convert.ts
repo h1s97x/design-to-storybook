@@ -5,7 +5,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { DesignConverter, Logger, LogLevel } from '@design-to-storybook/core';
 import { convertToReact } from '@design-to-storybook/react';
-import { writeFiles } from '../utils/fileWriter.js';
+import { writeFiles, type GeneratedFile } from '../utils/fileWriter.js';
 
 const logger = new Logger({ level: LogLevel.INFO, prefix: 'convert' });
 
@@ -18,7 +18,6 @@ export const convertCommand = new Command('convert')
   .option('--verbose', 'Enable verbose logging', false)
   .action(async (options) => {
     const { input, output, framework, typescript } = options;
-    void options.verbose; // Reserved for future use
     
     logger.info(`Input: ${input}`);
     logger.info(`Output: ${output}`);
@@ -30,46 +29,38 @@ export const convertCommand = new Command('convert')
       const nodes = Array.isArray(designData) ? designData : [designData];
       
       const converter = new DesignConverter({ framework: framework as 'react' | 'vue' | 'angular', typescript });
-      const result = converter.convert(nodes);
+      converter.convert(nodes);
       
-      // Generate component based on framework
-      let componentCode = '';
-      let storyCode = '';
-      let cssCode = '';
+      const baseName = input.replace(/\.json$/, '').split('/').pop() || 'Component';
+      const files: GeneratedFile[] = [];
       
       if (framework === 'react') {
         const reactResult = convertToReact(nodes, { typescript });
-        componentCode = reactResult.code;
-        cssCode = reactResult.styles.map((s) => s.css).join('\n');
-        // Generate basic story
-        const componentName = 'Component';
-        storyCode = `import { Meta, StoryObj } from '@storybook/react';
-import { ${componentName} } from './${componentName}';
-
-const meta: Meta<typeof ${componentName}> = {
-  title: 'Components/${componentName}',
-  component: ${componentName},
-};
-
-export default meta;
-type Story = StoryObj<typeof ${componentName}>;
-
-export const Default: Story = {
-  args: {},
-};
-`;
+        
+        for (const component of reactResult.components) {
+          const idx = reactResult.components.indexOf(component);
+          const storyContent = reactResult.stories[idx] || '';
+          
+          files.push({ path: `${component.name || baseName}.tsx`, content: component.code });
+          files.push({ path: `${component.name || baseName}.stories.tsx`, content: storyContent });
+          
+          if (component.styles && component.styles.length > 0) {
+            const cssContent = component.styles
+              .map((s) => s.css ? Object.entries(s.css).map(([k, v]) => `${k}: ${v}`).join(';\n') : '')
+              .filter(Boolean)
+              .join('\n\n');
+            files.push({ path: `${component.name || baseName}.css`, content: cssContent });
+          }
+        }
       }
       
-      const baseName = input.replace(/\.json$/, '').split('/').pop() || 'Component';
-      writeFiles(output, {
-        component: componentCode,
-        story: storyCode,
-        styles: cssCode,
-        types: ''
-      }, baseName);
-      
-      logger.success(`Converted successfully!`);
-      logger.info(`Generated files in: ${output}`);
+      if (files.length > 0) {
+        await writeFiles(output, files);
+        logger.success(`Converted successfully!`);
+        logger.info(`Generated files in: ${output}`);
+      } else {
+        logger.warn('No files were generated');
+      }
       
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);

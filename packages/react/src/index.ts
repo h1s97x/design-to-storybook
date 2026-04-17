@@ -23,6 +23,7 @@ import type { StoryGeneratorOptions } from './generators/storyGenerator.js';
 export interface ReactConvertOptions extends Partial<ReactGeneratorOptions>, Partial<StoryGeneratorOptions> {
   outputDir?: string;
   styleFormat?: 'css' | 'tailwind' | 'styled';
+  typescript?: boolean;
 }
 
 export interface ReactConvertResult {

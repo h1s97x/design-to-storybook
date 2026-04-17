@@ -182,7 +182,7 @@ function inferPropertyMapping(
         description: `Icon or component from: ${name}`,
       };
 
-    case 'VARIANT':
+    case 'VARIANT': {
       // 从 variantOptions 解析枚举值
       const values = prop.variantOptions ?? [];
       return {
@@ -193,6 +193,7 @@ function inferPropertyMapping(
         enumValues: values.length > 0 ? values : undefined,
         description: `Variant property: ${name}`,
       };
+    }
     
     case 'COMPONENT':
       return {

@@ -4,9 +4,8 @@
  */
 import { Command } from 'commander';
 import chokidar from 'chokidar';
-import { writeFile } from 'fs/promises';
+import * as fs from 'fs/promises';
 import { DesignConverter, Logger, LogLevel } from '@design-to-storybook/core';
-import { convertToReact } from '@design-to-storybook/react';
 import { writeFiles } from '../utils/fileWriter.js';
 
 const logger = new Logger({ level: LogLevel.INFO, prefix: 'watch' });
@@ -19,7 +18,7 @@ export const watchCommand = new Command('watch')
   .option('-t, --typescript', 'Generate TypeScript files', true)
   .option('--verbose', 'Enable verbose logging', false)
   .action(async (options) => {
-    const { input, output, framework, typescript, verbose } = options;
+    const { input, output, framework, typescript } = options;
     
     logger.info(`Watching ${input} for changes...`);
     logger.info(`Output directory: ${output}`);
@@ -69,18 +68,21 @@ async function handleFile(
   }
   
   try {
-    const content = fs.readFileSync(filePath, "utf-8");
+    const content = await fs.readFile(filePath, 'utf-8');
     const designData = JSON.parse(content);
     const nodes = Array.isArray(designData) ? designData : [designData];
+    
+    // Convert design to component
     const result = converter.convert(nodes);
     
-    for (const component of result.components) {
-      const componentOutput = output;
-      await writeComponentFiles(componentOutput, component);
-      if (result.stories) {
-        await writeStoryFiles(componentOutput, result.stories);
-      }
-    }
+    // Generate component code
+    const componentName = filePath.replace(/\.json$/, '').split('/').pop() || 'Component';
+    
+    await writeFiles(output, [
+      { path: `${componentName}.tsx`, content: result.component },
+      { path: `${componentName}.stories.tsx`, content: result.story || '' },
+      { path: `${componentName}.css`, content: result.styles || '' }
+    ]);
     
     log.success(`Converted: ${filePath}`);
   } catch (error) {

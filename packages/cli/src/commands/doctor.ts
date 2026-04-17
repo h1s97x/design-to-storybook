@@ -61,7 +61,7 @@ interface CheckResult {
   message?: string;
 }
 
-async function checkNodeVersion(_____verbose: boolean): Promise<CheckResult> {
+async function checkNodeVersion(____verbose: boolean): Promise<CheckResult> {
   const version = process.version;
   const major = parseInt(version.slice(1).split('.')[0]);
   
@@ -75,7 +75,7 @@ async function checkNodeVersion(_____verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkDependencies(_____verbose: boolean): Promise<CheckResult> {
+async function checkDependencies(____verbose: boolean): Promise<CheckResult> {
   try {
     await fs.access(path.join(process.cwd(), 'node_modules'));
     return { status: 'pass', name: 'Dependencies', message: 'node_modules found' };
@@ -88,7 +88,7 @@ async function checkDependencies(_____verbose: boolean): Promise<CheckResult> {
   }
 }
 
-async function checkConfig(_____verbose: boolean): Promise<CheckResult> {
+async function checkConfig(____verbose: boolean): Promise<CheckResult> {
   const configPaths = [
     'design-to-storybook.config.json',
     '.design-to-storybook.json',
@@ -115,7 +115,7 @@ async function checkConfig(_____verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkOutputDirectory(_____verbose: boolean): Promise<CheckResult> {
+async function checkOutputDirectory(____verbose: boolean): Promise<CheckResult> {
   try {
     const configPath = 'design-to-storybook.config.json';
     const content = await fs.readFile(configPath, 'utf-8');
@@ -140,7 +140,7 @@ async function checkOutputDirectory(_____verbose: boolean): Promise<CheckResult>
   };
 }
 
-async function checkFigmaAccess(_____verbose: boolean): Promise<CheckResult> {
+async function checkFigmaAccess(____verbose: boolean): Promise<CheckResult> {
   if (____verbose) {
     return { 
       status: 'pass', 
@@ -155,7 +155,7 @@ async function checkFigmaAccess(_____verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkStorybookVersion(_____verbose: boolean): Promise<CheckResult> {
+async function checkStorybookVersion(____verbose: boolean): Promise<CheckResult> {
   try {
     const pkgPath = path.join(process.cwd(), 'package.json');
     const content = await fs.readFile(pkgPath, 'utf-8');

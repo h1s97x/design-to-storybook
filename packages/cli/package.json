@@ -25,12 +25,12 @@
   "dependencies": {
     "@design-to-storybook/core": "workspace:*",
     "@design-to-storybook/react": "workspace:*",
+    "chokidar": "^5.0.0",
     "commander": "^12.0.0",
     "fs-extra": "^11.2.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
-
     "@types/fs-extra": "^11.0.0",
     "@types/node": "^22.0.0",
     "tsup": "^8.0.0",

@@ -1,0 +1,62 @@
+name: Conversion Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      figma_file_url:
+        description: 'Figma file URL'
+        required: true
+        type: string
+      component_names:
+        description: 'Component names to convert (comma separated)'
+        required: false
+        type: string
+
+jobs:
+  convert:
+    name: Convert Components
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Install CLI globally
+        run: pnpm -r build && pnpm add -g packages/cli
+      
+      - name: Run conversion
+        run: |
+          design-to-storybook convert \
+            --input "./test-data/figma-export.json" \
+            --output "./generated-components" \
+            --framework react \
+            --typescript
+      
+      - name: Upload generated components
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-components
+          path: ./generated-components
+          retention-days: 7
+      
+      - name: Create PR
+        if: github.event_name == 'workflow_dispatch'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: "feat(components): Add converted components from Figma"
+          branch: "feat/add-converted-components"
+          delete-branch: true

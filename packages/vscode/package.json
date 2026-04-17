@@ -1,0 +1,111 @@
+{
+  "name": "design-to-storybook",
+  "displayName": "Design to Storybook",
+  "description": "Convert Figma designs to production-ready Storybook components",
+  "version": "1.0.0",
+  "publisher": "h1s97x",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "figma",
+    "storybook",
+    "design",
+    "components",
+    "react",
+    "vue",
+    "angular"
+  ],
+  "activationEvents": [
+    "onCommand:design-to-storybook.convert",
+    "onCommand:design-to-storybook.init",
+    "onCommand:design-to-storybook.doctor"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "design-to-storybook.convert",
+        "title": "Design to Storybook: Convert",
+        "description": "Convert selected Figma JSON to Storybook component"
+      },
+      {
+        "command": "design-to-storybook.init",
+        "title": "Design to Storybook: Initialize",
+        "description": "Initialize Storybook configuration"
+      },
+      {
+        "command": "design-to-storybook.doctor",
+        "title": "Design to Storybook: Doctor",
+        "description": "Diagnose configuration issues"
+      },
+      {
+        "command": "design-to-storybook.openDocs",
+        "title": "Design to Storybook: Open Documentation",
+        "description": "Open the documentation in browser"
+      }
+    ],
+    "configuration": {
+      "title": "Design to Storybook",
+      "properties": {
+        "designToStorybook.framework": {
+          "type": "string",
+          "default": "react",
+          "enum": ["react", "vue", "angular"],
+          "description": "Target framework for component generation"
+        },
+        "designToStorybook.outputDirectory": {
+          "type": "string",
+          "default": "./src/components",
+          "description": "Output directory for generated components"
+        },
+        "designToStorybook.typescript": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate TypeScript files"
+        },
+        "designToStorybook.styleFormat": {
+          "type": "string",
+          "default": "css",
+          "enum": ["css", "scss", "tailwind"],
+          "description": "Style format for generated components"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "design-to-storybook.convert",
+          "when": "resourceExtname == .json",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "design-to-storybook.convert",
+          "when": "resourceExtname == .json",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "pnpm compile && vsce package",
+    "publish": "pnpm compile && vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.21.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -55,6 +55,9 @@ export { InteractionStateExporter } from './extractors/interactionStateExporter.
 // Generators
 export { MDXGenerator, type MDXGeneratorOptions } from './generators/mdxGenerator.js';
 
+// Main Converter
+export { DesignConverter, type DesignConverterOptions } from './converter.js';
+
 // Error Handling
 export { 
   DesignToStorybookError, 
@@ -72,6 +75,24 @@ export {
   type LogEntry,
   type LogHandler
 } from './utils/logger.js';
+
+// Plugins
+export {
+  PluginManager,
+  officialPlugins,
+  type DesignToStorybookPlugin,
+  type PluginContext,
+  type PluginHook
+} from './plugins/pluginSystem.js';
+export * from './plugins/pluginExamples.js';
+
+// API
+export {
+  convertDesign,
+  generateDocumentation,
+  extractDesignInfo,
+  batchConvert
+} from './api/converter.js';
 
 /**
  * Main conversion function

@@ -33,7 +33,7 @@ export async function doctorCommand() {
   const tsConfigPath = vscode.workspace.workspaceFolders?.[0];
   if (tsConfigPath) {
     try {
-      const tsConfig = fs.readFileSync(
+      void fs.readFileSync(
         vscode.Uri.joinPath(tsConfigPath.uri, 'tsconfig.json').fsPath,
         'utf-8'
       );

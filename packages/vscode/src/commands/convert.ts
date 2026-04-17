@@ -26,7 +26,8 @@ export async function convertCommand(uri?: vscode.Uri) {
   const framework = config.get<string>('framework', 'react');
   const outputDir = config.get<string>('outputDirectory', './src/components');
   const typescript = config.get<boolean>('typescript', true);
-  const styleFormat = config.get<string>('styleFormat', 'css');
+  // styleFormat is available for future use
+  void config.get<string>('styleFormat', 'css');
 
   // Show progress
   await vscode.window.withProgress({

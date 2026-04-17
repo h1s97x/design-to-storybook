@@ -79,7 +79,7 @@ export function generateStoryFile(
     if (storyFile.meta.parameters.docs) {
       lines.push('    docs: {');
       lines.push('      description: {');
-      lines.push(`        component: '${(storyFile.meta.parameters.docs as any).description?.component || ''}',`);
+      lines.push(`        component: '${(storyFile.meta.parameters.docs as { description?: { component?: string } }).description?.component || ''}',`);
       lines.push('      },');
       lines.push('    },');
     }

@@ -5,7 +5,6 @@
 import { Command } from 'commander';
 import fs from 'fs/promises';
 import path from 'path';
-import { execSync } from 'child_process';
 
 export const doctorCommand = new Command('doctor')
   .description('Diagnose configuration and environment issues')
@@ -62,7 +61,7 @@ interface CheckResult {
   message?: string;
 }
 
-async function checkNodeVersion(verbose: boolean): Promise<CheckResult> {
+async function checkNodeVersion(_verbose: boolean): Promise<CheckResult> {
   const version = process.version;
   const major = parseInt(version.slice(1).split('.')[0]);
   
@@ -76,7 +75,7 @@ async function checkNodeVersion(verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkDependencies(verbose: boolean): Promise<CheckResult> {
+async function checkDependencies(_verbose: boolean): Promise<CheckResult> {
   try {
     await fs.access(path.join(process.cwd(), 'node_modules'));
     return { status: 'pass', name: 'Dependencies', message: 'node_modules found' };
@@ -89,7 +88,7 @@ async function checkDependencies(verbose: boolean): Promise<CheckResult> {
   }
 }
 
-async function checkConfig(verbose: boolean): Promise<CheckResult> {
+async function checkConfig(_verbose: boolean): Promise<CheckResult> {
   const configPaths = [
     'design-to-storybook.config.json',
     '.design-to-storybook.json',
@@ -116,7 +115,7 @@ async function checkConfig(verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkOutputDirectory(verbose: boolean): Promise<CheckResult> {
+async function checkOutputDirectory(_verbose: boolean): Promise<CheckResult> {
   try {
     const configPath = 'design-to-storybook.config.json';
     const content = await fs.readFile(configPath, 'utf-8');
@@ -141,7 +140,7 @@ async function checkOutputDirectory(verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkFigmaAccess(verbose: boolean): Promise<CheckResult> {
+async function checkFigmaAccess(_verbose: boolean): Promise<CheckResult> {
   if (verbose) {
     return { 
       status: 'pass', 
@@ -156,7 +155,7 @@ async function checkFigmaAccess(verbose: boolean): Promise<CheckResult> {
   };
 }
 
-async function checkStorybookVersion(verbose: boolean): Promise<CheckResult> {
+async function checkStorybookVersion(_verbose: boolean): Promise<CheckResult> {
   try {
     const pkgPath = path.join(process.cwd(), 'package.json');
     const content = await fs.readFile(pkgPath, 'utf-8');

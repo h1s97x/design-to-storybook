@@ -117,7 +117,7 @@ function formatPropLine(prop: PropDefinition, config: TypeInferenceConfig): stri
 /**
  * 格式化默认值
  */
-function formatDefaultValue(value: any, type: string): string {
+function formatDefaultValue(value: unknown, type: string): string {
   if (value === undefined) return 'undefined';
   if (value === null) return 'null';
 
@@ -141,7 +141,7 @@ export function inferTypesFromNodeTree(node: DesignNode): PropDefinition[] {
   const props: PropDefinition[] = [];
 
   // 从子节点推断 - 使用类型断言访问 children
-  const children = (node as any).children;
+  const children = (node as { children?: DesignNode[] }).children;
   if (children) {
     for (const child of children) {
       // 检测是否为可交互元素

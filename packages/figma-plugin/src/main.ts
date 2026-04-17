@@ -109,7 +109,7 @@ async function handleCopyJSON() {
  * Extract export data from selection
  */
 async function extractExportData(selection: readonly SceneNode[]) {
-  const nodes: any[] = [];
+  const nodes: unknown[] = [];
 
   for (const node of selection) {
     const extractedNode = await extractNode(node);
@@ -142,8 +142,8 @@ async function extractExportData(selection: readonly SceneNode[]) {
 /**
  * Extract a single node's data
  */
-async function extractNode(node: SceneNode): Promise<any> {
-  const base: any = {
+async function extractNode(node: SceneNode): Promise<Record<string, unknown>> {
+  const base: Record<string, unknown> = {
     id: node.id,
     name: node.name,
     type: node.type,
@@ -227,10 +227,10 @@ async function extractNode(node: SceneNode): Promise<any> {
       base.componentProperties = node.componentProperties;
     }
     if (node.type === 'COMPONENT_SET' && 'componentPropertyDefinitions' in node) {
-      base.componentPropertyDefinitions = (node as any).componentPropertyDefinitions;
+      base.componentPropertyDefinitions = (node as unknown as Record<string, unknown>).componentPropertyDefinitions;
     }
     if (node.type === 'INSTANCE' && 'componentId' in node) {
-      base.componentId = (node as any).componentId;
+      base.componentId = (node as unknown as Record<string, unknown>).componentId;
     }
   }
 
@@ -249,7 +249,7 @@ async function extractNode(node: SceneNode): Promise<any> {
 /**
  * Extract fills from node
  */
-function extractFills(fills: readonly Paint[]): any[] {
+function extractFills(fills: readonly Paint[]): ExtractedFill[] {
   return fills.map((fill) => {
     if (fill.type === 'SOLID') {
       return {
@@ -261,16 +261,16 @@ function extractFills(fills: readonly Paint[]): any[] {
           a: fill.opacity ?? 1,
         },
         opacity: fill.opacity,
-      };
+      } as ExtractedFill;
     }
-    return { type: fill.type };
+    return { type: fill.type } as ExtractedFill;
   });
 }
 
 /**
  * Extract strokes from node
  */
-function extractStrokes(strokes: readonly Paint[]): any[] {
+function extractStrokes(strokes: readonly Paint[]): ExtractedFill[] {
   return strokes.map((stroke) => {
     if (stroke.type === 'SOLID') {
       return {
@@ -282,17 +282,26 @@ function extractStrokes(strokes: readonly Paint[]): any[] {
           a: stroke.opacity ?? 1,
         },
         opacity: stroke.opacity,
-      };
+      } as ExtractedFill;
     }
-    return { type: stroke.type };
+    return { type: stroke.type } as ExtractedFill;
   });
 }
 
 /**
  * Extract effects from node
  */
-function extractEffects(effects: readonly Effect[]): any[] {
-  return effects.map((effect) => {
+interface ExtractedEffect {
+  type: string;
+  color?: { r: number; g: number; b: number; a?: number };
+  offset?: { x: number; y: number };
+  radius?: number;
+  spread?: number;
+  visible?: boolean;
+}
+
+function extractEffects(effects: readonly Effect[]): ExtractedEffect[] {
+  return effects.map((effect): ExtractedEffect => {
     switch (effect.type) {
       case 'DROP_SHADOW':
         return {
@@ -337,9 +346,9 @@ function extractEffects(effects: readonly Effect[]): any[] {
  * Extract design tokens from selection
  */
 async function extractDesignTokens(selection: readonly SceneNode[]) {
-  const colors: any[] = [];
-  const typography: any[] = [];
-  const spacing: any[] = [];
+  const colors: Array<{ name: string; value: string }> = [];
+  const typography: Array<{ name: string; fontSize: number; fontFamily: string }> = [];
+  const spacing: Array<{ name: string; value: number }> = [];
 
   const seenColors = new Set<string>();
 

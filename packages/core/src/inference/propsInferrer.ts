@@ -66,10 +66,10 @@ function inferFromComponentProperties(node: DesignNode): PropDefinition[] {
 
   // Handle COMPONENT_SET type
   if (node.type === 'COMPONENT_SET' && 'componentPropertyDefinitions' in node) {
-    const definitions = (node as any).componentPropertyDefinitions;
+    const definitions = (node as { componentPropertyDefinitions?: Record<string, unknown> }).componentPropertyDefinitions;
     if (definitions) {
       for (const [key, def] of Object.entries(definitions)) {
-        const prop = inferComponentPropertyDefinition(key, def);
+        const prop = inferComponentPropertyDefinition(key, def as unknown);
         if (prop) {
           props.push(prop);
         }
@@ -137,7 +137,7 @@ function inferComponentProperty(key: string, value: ComponentPropertyValue): Pro
  */
 function inferComponentPropertyDefinition(
   key: string,
-  def: any
+  def: { type: string; defaultValue?: unknown }
 ): PropDefinition | null {
   const propName = toCamelCase(key);
 
@@ -209,7 +209,7 @@ function inferFromVariantProperties(node: DesignNode): PropDefinition[] {
       .filter(([_, value]) => value.type === 'VARIANT')
       .map(([key, value]) => ({
         key,
-        value: (value as any).value,
+        value: (value as { value?: string }).value ?? '',
       }));
 
     if (variantValues.length > 0) {

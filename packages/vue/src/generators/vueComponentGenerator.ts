@@ -147,7 +147,7 @@ export class VueComponentGenerator {
   /**
    * 生成样式
    */
-  private generateStyles(style: any, className: string): string {
+  private generateStyles(style: StyleDefinition, className: string): string {
     const cssProps: string[] = [];
     
     // 布局样式

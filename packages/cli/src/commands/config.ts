@@ -4,7 +4,6 @@
  */
 import { Command } from 'commander';
 import fs from 'fs/promises';
-import path from 'path';
 
 export const configCommand = new Command('config')
   .description('Manage configuration');
@@ -56,7 +55,7 @@ configCommand
     try {
       const content = await fs.readFile(options.config, 'utf-8');
       console.log(JSON.stringify(JSON.parse(content), null, 2));
-    } catch (error) {
+    } catch {
       console.error(`✗ Config file not found: ${options.config}`);
       console.log('Run "design-to-storybook config init" to create one.');
     }

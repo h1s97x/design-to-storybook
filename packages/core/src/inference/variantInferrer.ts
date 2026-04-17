@@ -81,7 +81,7 @@ export function inferComponentProperties(
 export function extractVariants(
   componentSet: DesignNode
 ): VariantDefinition[] {
-  const children = (componentSet as any).children;
+  const children = (componentSet as { children?: DesignNode[] }).children;
   if (!children) return [];
 
   const variants: VariantDefinition[] = [];
@@ -122,11 +122,11 @@ export function extractVariants(
  * 提取单个 Variant 的样式
  */
 function extractVariantStyles(variant: DesignNode): StyleDefinition {
-  const fills = (variant as any).fills;
-  const strokes = (variant as any).strokes;
-  const effects = (variant as any).effects;
-  const borderRadius = (variant as any).borderRadius;
-  const opacity = (variant as any).opacity;
+  const fills = (variant as { fills?: unknown[] }).fills;
+  const strokes = (variant as { strokes?: unknown[] }).strokes;
+  const effects = (variant as { effects?: unknown[] }).effects;
+  const borderRadius = (variant as { borderRadius?: number }).borderRadius;
+  const opacity = (variant as { opacity?: number }).opacity;
 
   return {
     className: '',
@@ -140,32 +140,32 @@ function extractVariantStyles(variant: DesignNode): StyleDefinition {
   };
 }
 
-function extractFillColor(fills?: any[]): string | undefined {
+function extractFillColor(fills?: unknown[]): string | undefined {
   if (!fills || fills.length === 0) return undefined;
-  const solid = fills.find((f) => f.type === 'SOLID');
+  const solid = fills.find((f: unknown) => (f as { type?: string }).type === 'SOLID') as { color?: { r: number; g: number; b: number; a?: number } } | undefined;
   if (!solid?.color) return undefined;
   const { r, g, b, a = 1 } = solid.color;
   return `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${a})`;
 }
 
-function extractStrokeWidth(strokes?: any[]): number | undefined {
+function extractStrokeWidth(strokes?: unknown[]): number | undefined {
   if (!strokes || strokes.length === 0) return undefined;
-  return strokes[0].strokeWeight;
+  return (strokes[0] as { strokeWeight?: number }).strokeWeight;
 }
 
-function extractStrokeColor(strokes?: any[]): string | undefined {
+function extractStrokeColor(strokes?: unknown[]): string | undefined {
   if (!strokes || strokes.length === 0) return undefined;
-  const solid = strokes.find((s: any) => s.type === 'SOLID');
+  const solid = strokes.find((s: unknown) => (s as { type?: string }).type === 'SOLID') as { color?: { r: number; g: number; b: number; a?: number } } | undefined;
   if (!solid?.color) return undefined;
   const { r, g, b, a = 1 } = solid.color;
   return `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${a})`;
 }
 
-function extractShadow(effects?: any[]): string | undefined {
+function extractShadow(effects?: unknown[]): string | undefined {
   if (!effects) return undefined;
   const shadow = effects.find(
-    (e: any) => e.type === 'DROP_SHADOW' || e.type === 'INNER_SHADOW'
-  );
+    (e: unknown) => (e as { type?: string }).type === 'DROP_SHADOW' || (e as { type?: string }).type === 'INNER_SHADOW'
+  ) as { type?: string; color?: { r: number; g: number; b: number; a?: number }; offset?: { x: number; y: number }; radius?: number } | undefined;
   if (!shadow) return undefined;
 
   const offsetX = shadow.offset?.x ?? 0;

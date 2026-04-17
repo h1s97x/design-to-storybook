@@ -17,7 +17,7 @@ export const initCommand = new Command('init')
     await init(projectName, options);
   });
 
-async function init(projectName: string, options: any) {
+async function init(projectName: string, _options: { framework?: string; typescript?: boolean }) {
   console.log(`🚀 Initializing ${projectName}...`);
   console.log('');
 

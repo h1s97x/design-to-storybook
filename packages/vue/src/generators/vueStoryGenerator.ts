@@ -63,7 +63,7 @@ export class VueStoryGenerator {
       .reduce((acc, p) => {
         acc[p.name] = p.defaultValue;
         return acc;
-      }, {} as Record<string, any>);
+      }, {} as Record<string, unknown>);
 
     const argTypes = this.generateArgTypes(props);
 
@@ -137,7 +137,7 @@ export class VueStoryGenerator {
    * 生成 ArgTypes
    */
   private generateArgTypes(props: PropDefinition[]): string {
-    const argTypes: Record<string, any> = {};
+    const argTypes: Record<string, { control?: { type: string }; options?: string[]; description?: string }> = {};
 
     for (const prop of props) {
       // 有 options 的使用 select

@@ -46,7 +46,7 @@ export const batchCommand = new Command('batch')
           await convertSingleFile(file, output, converter);
           results.success++;
           logger.success(`✓ ${file}`);
-        } catch (error) {
+        } catch {
           results.failed++;
           const err = error as ConversionError;
           results.errors.push(err);
@@ -82,7 +82,7 @@ export const batchCommand = new Command('batch')
     }
   });
 
-async function findFiles(input: string, pattern: string): Promise<string[]> {
+async function findFiles(input: string, _pattern: string): Promise<string[]> {
   const files: string[] = [];
   
   try {
@@ -98,7 +98,7 @@ async function findFiles(input: string, pattern: string): Promise<string[]> {
     } else if (stat.isFile() && input.endsWith('.json')) {
       files.push(input);
     }
-  } catch (error) {
+  } catch {
     // Handle glob patterns or multiple paths
     const parts = input.split(',');
     for (const part of parts) {

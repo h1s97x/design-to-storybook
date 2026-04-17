@@ -19,7 +19,7 @@ export interface ComponentPropertyMapping {
   /** Prop 类型 */
   type: 'string' | 'number' | 'boolean' | 'enum' | 'ReactNode';
   /** 默认值 */
-  defaultValue?: any;
+  defaultValue?: string | number | boolean;
   /** 可能的枚举值 */
   enumValues?: string[];
   /** 描述 */

@@ -7,9 +7,8 @@
 import { Command } from 'commander';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
-import { convert as convertCore } from '@design-to-storybook/core';
-import { convertToReact } from '@design-to-storybook/react';
 import { stylesToCSS } from '@design-to-storybook/core';
+import { convertToReact } from '@design-to-storybook/react';
 import { writeFiles } from '../utils/fileWriter.js';
 import type { DesignNode, PluginExport } from '@design-to-storybook/core';
 
@@ -27,8 +26,8 @@ export const convertCommand = new Command('convert')
     await convert(input, options);
   });
 
-async function convert(input: string, options: any) {
-  const { verbose, output, framework, style, includeStories, extractTokens } = options;
+async function convert(input: string, options: ConvertOptions) {
+  const { verbose, output, framework, style } = options;
 
   if (verbose) {
     console.log('🔄 Design-to-Storybook Converter');

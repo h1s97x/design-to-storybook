@@ -46,17 +46,17 @@ export const watchCommand = new Command('watch')
     logger.info('Watching for changes. Press Ctrl+C to exit.');
   });
 
-async function processDirectory(input: string, output: string, converter: DesignConverter) {
+async function processDirectory(_input: string, _output: string, _converter: DesignConverter) {
   // Implementation for processing directory
-  logger.info(`Processing directory: ${input}`);
+  logger.info(`Processing directory: ${_input}`);
 }
 
 async function handleFile(
   filePath: string,
   event: string,
-  input: string,
-  output: string,
-  converter: DesignConverter,
+  _input: string,
+  _output: string,
+  _converter: DesignConverter,
   verbose: boolean
 ) {
   if (verbose) {

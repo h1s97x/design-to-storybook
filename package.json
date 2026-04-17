@@ -12,8 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "lint": "eslint . --ext .ts,.tsx -c eslint.config.mjs",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix -c eslint.config.mjs",
     "typecheck": "tsc --noEmit",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "prepare": "husky install"

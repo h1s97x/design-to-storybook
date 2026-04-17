@@ -55,12 +55,12 @@ interface FigmaTextNode extends FigmaSceneNode {
   lineHeightPercent: number;
 }
 
-interface FigmaRectangleNode extends FigmaSceneNode {}
-interface FigmaEllipseNode extends FigmaSceneNode {}
-interface FigmaVectorNode extends FigmaSceneNode {}
-interface FigmaComponentNode extends FigmaSceneNode {}
-interface FigmaGroupNode extends FigmaSceneNode {}
-interface FigmaPageNode extends FigmaSceneNode {}
+type FigmaRectangleNode = FigmaSceneNode;
+type FigmaEllipseNode = FigmaSceneNode;
+type FigmaVectorNode = FigmaSceneNode;
+type FigmaComponentNode = FigmaSceneNode;
+type FigmaGroupNode = FigmaSceneNode;
+type FigmaPageNode = FigmaSceneNode;
 
 interface FigmaPaint {
   type: string;
